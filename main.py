@@ -1,20 +1,21 @@
 from fastapi import FastAPI
 import json
-
 from gemini_client import generate_multimodal, generate_text
-from analyze_prompt import ANALYZE_PROMPT
-from action_prompt import ACTION_PROMPT
-
-from pydantic_models import AnalyzeRequest, PlanRequest
+from pydantic_models import AnalyzeRequest, PlanRequest, GenerateRequest
 from action_models import ActionPlan
-
+from prompts import ANALYZE_PROMPT, ACTION_PROMPT
 
 app = FastAPI()
-
 
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.post("/generate")
+def generate(request: GenerateRequest):
+    output = generate_text(request.prompt)
+    return {"response": output}
 
 
 # ---------- DAY 2 : REPOSITORY ANALYSIS ----------

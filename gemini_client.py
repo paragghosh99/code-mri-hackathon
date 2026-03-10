@@ -1,6 +1,4 @@
 from dotenv import load_dotenv
-load_dotenv()
-
 import base64
 import os
 from google import genai
@@ -9,14 +7,16 @@ from vertexai.generative_models import GenerativeModel
 from google.genai.types import Part
 import json
 
+load_dotenv()
+
 API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODE = os.getenv("GEMINI_MODE", "studio")
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 REGION = os.getenv("GCP_REGION", "us-central1")
 
+
 # ---------- AI STUDIO CLIENT ----------
-# studio_client = genai.Client(api_key=API_KEY)
 
 def studio_generate_multimodal(prompt: str, image_base64: str):
 
@@ -52,9 +52,7 @@ def studio_generate_text(prompt: str):
 
 
 # ---------- VERTEX CLIENT ----------
-def vertex_generate_multimodal(prompt: str, image_base64: str):
-
-    
+def vertex_generate_multimodal(prompt: str, image_base64: str):    
 
     vertexai.init(project=PROJECT_ID, location=REGION)
 
@@ -76,6 +74,7 @@ def vertex_generate_multimodal(prompt: str, image_base64: str):
 
     return response.text
 
+
 # ---------- VERTEX TEXT ----------
 def vertex_generate_text(prompt: str):
 
@@ -95,6 +94,7 @@ def generate_multimodal(prompt: str, image_base64: str):
         return vertex_generate_multimodal(prompt, image_base64)
 
     return studio_generate_multimodal(prompt, image_base64)
+
 
 # ---------- TEXT ROUTER ----------
 def generate_text(prompt: str):

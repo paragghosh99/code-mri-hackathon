@@ -24,6 +24,7 @@ google-crc32c==1.8.0
 google-genai==1.66.0
 google-resumable-media==2.8.0
 googleapis-common-protos==1.72.0
+greenlet==3.3.2
 grpc-google-iam-v1==0.14.3
 grpcio==1.78.0
 grpcio-status==1.71.2
@@ -34,6 +35,7 @@ httpx==0.28.1
 idna==3.11
 numpy==2.4.2
 packaging==26.0
+playwright==1.58.0
 proto-plus==1.27.1
 protobuf==5.29.6
 pyasn1==0.6.2
@@ -41,6 +43,7 @@ pyasn1_modules==0.4.2
 pycparser==3.0
 pydantic==2.12.5
 pydantic_core==2.41.5
+pyee==13.0.1
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
@@ -59,4 +62,3 @@ urllib3==2.6.3
 uvicorn==0.41.0
 vertexai==1.71.1
 websockets==16.0
-Pillow
