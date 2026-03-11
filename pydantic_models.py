@@ -20,3 +20,4 @@ class AnalysisResult(BaseModel):
 
 class PlanRequest(BaseModel):
     analysis: AnalysisResult
+    files: List[str]

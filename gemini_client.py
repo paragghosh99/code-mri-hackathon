@@ -5,6 +5,7 @@ from google import genai
 import vertexai
 from vertexai.generative_models import GenerativeModel
 from google.genai.types import Part
+from vertexai.generative_models import Part as vPart
 import json
 
 load_dotenv()
@@ -51,28 +52,26 @@ def studio_generate_text(prompt: str):
     return response.text
 
 
-# ---------- VERTEX CLIENT ----------
-def vertex_generate_multimodal(prompt: str, image_base64: str):    
+model = GenerativeModel("gemini-2.5-flash")
 
-    vertexai.init(project=PROJECT_ID, location=REGION)
+vertexai.init(project=PROJECT_ID, location=REGION)
+
+# ---------- VERTEX CLIENT ----------
+def vertex_generate_multimodal(prompt: str, image_base64: str):
 
     image_bytes = base64.b64decode(image_base64)
 
-    model = GenerativeModel("gemini-2.5-flash")
-
     response = model.generate_content([
-        {
-            "type": "text",
-            "text": prompt
-        },
-        {
-            "type": "image",
-            "mime_type": "image/jpeg",
-            "data": image_bytes
-        }
+        prompt,
+        vPart.from_data(
+            mime_type="image/jpeg",
+            data=image_bytes
+        )
     ])
 
-    return response.text
+    cleaned = response.text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(cleaned)
 
 
 # ---------- VERTEX TEXT ----------

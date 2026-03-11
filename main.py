@@ -43,6 +43,9 @@ async def plan_action(request: PlanRequest):
 
             Repository analysis:
             {request.analysis.model_dump()}
+
+            Visible files:
+            {request.files}
             """
 
     result = generate_text(prompt)

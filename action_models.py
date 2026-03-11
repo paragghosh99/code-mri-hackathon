@@ -9,5 +9,6 @@ class Coordinates(BaseModel):
 
 class ActionPlan(BaseModel):
     action: Literal["CLICK", "SCROLL", "SEARCH", "OPEN_FILE"]
-    coordinates: Optional[Coordinates] = None
+    # coordinates: Optional[Coordinates] = None
+    target: str
     reason: str
