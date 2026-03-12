@@ -4,6 +4,8 @@ import requests
 from playwright.async_api import async_playwright
 from helper.github_api import fetch_file
 from helper.get_current_folder import get_current_folder
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
 
 API_URL = "http://127.0.0.1:8000"
 
@@ -42,10 +44,19 @@ async def analyze_repo(image_base64):
 async def plan_action(analysis, files):
 
     payload = {
-        "analysis": analysis,
-        "files": files,
-        "instruction": "Only choose from these files. Prefer Python source files and folders containing source code. Avoid README.md."
-    }
+                "analysis": analysis,
+                "files": files,
+                "visited_files": list(visited_files),
+                "visited_folders": list(visited_folders),
+                "instruction": """
+                Choose the next action.
+
+                Rules:
+                - Never choose files already in visited_files
+                - Never choose folders already in visited_folders
+                - Prefer unexplored Python files
+                """
+            }
 
     r = requests.post(f"{API_URL}/plan", json=payload)
 
@@ -91,6 +102,19 @@ async def execute_action(page, action):
 
         if await link.count() == 0:
             print("Folder not found in current view:", target)
+
+            # move to parent directory
+            parent = page.locator("a[title='..']")
+
+            if await parent.count() > 0:
+                href = await parent.first.get_attribute("href")
+
+                if href:
+                    await page.goto(f"https://github.com{href}")
+                    await page.wait_for_load_state("networkidle")
+
+                print("Moved to parent directory")
+
             return
 
         href = await link.first.get_attribute("href")
@@ -165,7 +189,7 @@ async def execute_action(page, action):
 
 
         print("Fetched code preview:")
-        print(code[:500])
+        print(code[:500].encode("ascii", "ignore").decode())
 
         # -------------------------------
         # Save temporary file
@@ -226,18 +250,38 @@ async def main():
             # await page.wait_for_selector('[data-testid="tree-item-file-name"]')
             files = list(set(await page.locator("tbody a.Link--primary").all_inner_texts()))
 
+            if not files:
+                print("No more files to explore. Stopping crawler.")
+                break
+
             # prefer python files
             py_files = [f for f in files if f.endswith(".py")]
 
             # otherwise explore folders
             folders = [f for f in files if "." not in f]
+            # ignore GitHub parent navigation
+            folders = [f for f in folders if f != ".."]
 
-            if py_files:
-                files = py_files
-            elif folders:
-                files = folders
+            # prefer unexplored folders first (repo exploration)
+            current_folder = get_current_folder(page.url)
+
+            files = []
+
+            for f in folders:
+                candidate = f"{current_folder}/{f}" if current_folder != "root" else f
+                if candidate not in visited_folders:
+                    files.append(f)
+
+            # if no folders left, parse python files
+            if not files:
+                files = [f for f in py_files if f not in visited_files]
 
             print("Filtered files:", files)
+
+            if not files:
+                print("Nothing left to explore here. Going back.")
+                await page.go_back()
+                continue
 
             analysis = await analyze_repo(screenshot_base64)
             print("Analysis received:", analysis)

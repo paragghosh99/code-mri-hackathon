@@ -2,7 +2,7 @@ import React from "react";
 import RepoGraphViewer from "./components/RepoGraphViewer";
 
 function App() {
-  const repoId = "fastapi_fastapi";
+  const repoId = "paragghosh99_task_app_auth_testing";
 
   return (
     <div style={{ height: "100vh" }}>

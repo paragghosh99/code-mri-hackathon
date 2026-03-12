@@ -21,3 +21,5 @@ class AnalysisResult(BaseModel):
 class PlanRequest(BaseModel):
     analysis: AnalysisResult
     files: List[str]
+    visited_files: List[str]
+    visited_folders: List[str]

@@ -49,4 +49,7 @@ Rules:
 - Output must be valid JSON
 - Do not include markdown
 - Do not include explanations outside JSON
+- Never select files in visited_files
+- Never select folders in visited_folders
+- Prefer unexplored Python files
 """
