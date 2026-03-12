@@ -214,7 +214,7 @@ async def main():
             viewport={"width": 1600, "height": 1000}
         )
 
-        await page.goto("https://github.com/fastapi/fastapi")
+        await page.goto("https://github.com/paragghosh99/task_app_auth_testing")
 
         for _ in range(4):
 

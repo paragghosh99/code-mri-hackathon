@@ -4,8 +4,10 @@ from gemini_client import generate_multimodal, generate_text
 from pydantic_models import AnalyzeRequest, PlanRequest, GenerateRequest
 from action_models import ActionPlan
 from prompts import ANALYZE_PROMPT, ACTION_PROMPT
+from services.repo_graph_route import router as graph_router
 
 app = FastAPI()
+app.include_router(graph_router)
 
 @app.get("/health")
 def health_check():
@@ -58,3 +60,12 @@ async def plan_action(request: PlanRequest):
         return {"action_plan": action}
     except Exception:
         return {"error": "Invalid action plan generated"}
+    
+
+# ---------- DAY 6 : DEPENDENCY GRAPH ----------
+@app.get("/repo-graph/{repo_id}")
+def repo_graph(repo_id: str):
+
+    result = analyze_repo(repo_id)
+
+    return result
