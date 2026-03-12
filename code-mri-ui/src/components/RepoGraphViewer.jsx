@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import ReactFlow, {
   Background,
@@ -51,6 +51,7 @@ export default function RepoGraphViewer({ repoId }) {
   const [edges, setEdges] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [scalingAnalysis, setScalingAnalysis] = useState(null);
+  const reactFlowInstance = useRef(null);
 
   useEffect(() => {
     loadGraph();
@@ -92,38 +93,42 @@ export default function RepoGraphViewer({ repoId }) {
     return (
         <div style={{ width: "100vw", height: "100vh" }}>
             <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodeClick={onNodeClick}
-            fitView
-            fitViewOptions={{ padding: 0.3 }}
-            style={{ width: "100%", height: "100%" }}
+              nodes={nodes}
+              edges={edges}
+              onNodeClick={onNodeClick}
+              fitView
+              fitViewOptions={{ padding: 0.3 }}
+              onInit={(instance) => {
+                reactFlowInstance.current = instance;
+                setTimeout(() => instance.fitView({ padding: 0.3 }), 0);
+              }}
+              style={{ width: "100%", height: "100%" }}
             >
-                {scalingAnalysis && (
-                <div
-                    style={{
-                    position: "absolute",
-                    top: 20,
-                    right: 20,
-                    background: "#111",
-                    color: "white",
-                    padding: 15,
-                    borderRadius: 8,
-                    width: 250
-                    }}
-                >
-                    <h4>Scaling Risk</h4>
+            {scalingAnalysis && (
+            <div
+                style={{
+                position: "absolute",
+                top: 20,
+                right: 20,
+                background: "#111",
+                color: "white",
+                padding: 15,
+                borderRadius: 8,
+                width: 250
+                }}
+            >
+                <h4>Scaling Risk</h4>
 
-                    <p>
-                    Score: {scalingAnalysis.overall_scaling_risk}
-                    </p>
+                <p>
+                Score: {scalingAnalysis.overall_scaling_risk}
+                </p>
 
-                    <ul>
-                    {scalingAnalysis.signals.map((s, i) => (
-                        <li key={i}>{s}</li>
-                    ))}
-                    </ul>
-                </div>
+                <ul>
+                {scalingAnalysis.signals.map((s, i) => (
+                    <li key={i}>{s}</li>
+                ))}
+                </ul>
+            </div>
                 )}
             <MiniMap />
             <Controls />
