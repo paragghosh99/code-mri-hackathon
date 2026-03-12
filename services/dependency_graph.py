@@ -1,5 +1,6 @@
 from google.cloud import firestore
 import networkx as nx
+from services.scaling_simulator import run_scaling_simulation
 
 db = firestore.Client()
 
@@ -23,6 +24,9 @@ def build_dependency_graph(files):
 
     G = nx.DiGraph()
 
+    # collect all repo files
+    repo_file_names = {f["file"] for f in files}
+
     for f in files:
 
         filename = f["file"]
@@ -32,7 +36,12 @@ def build_dependency_graph(files):
         G.add_node(filename, lines=lines)
 
         for imp in imports:
-            G.add_edge(filename, imp)
+
+            # normalize import name → module.py
+            imp_file = imp.split(".")[-1] + ".py"
+
+            if imp_file in repo_file_names:
+                G.add_edge(filename, imp_file)
 
     return G
 
@@ -77,8 +86,18 @@ def analyze_repo(repo_id):
 
     top = most_connected_files(G)[:5]
 
+    simulation = run_scaling_simulation(G)
+
+    # NEW: export graph edges
+    graph_edges = [
+        {"source": u, "target": v}
+        for u, v in G.edges()
+    ]
+
     return {
         "nodes": G.number_of_nodes(),
         "edges": G.number_of_edges(),
-        "top_files": top
+        "top_files": top,
+        "graph_edges": graph_edges,
+        "scaling_analysis": simulation
     }

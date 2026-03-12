@@ -216,7 +216,7 @@ async def main():
 
         await page.goto("https://github.com/paragghosh99/task_app_auth_testing")
 
-        for _ in range(4):
+        for _ in range(20):
 
             print("\n===== LOOP START =====")
 

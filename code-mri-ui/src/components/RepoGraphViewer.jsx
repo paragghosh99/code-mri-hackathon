@@ -50,6 +50,7 @@ export default function RepoGraphViewer({ repoId }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [scalingAnalysis, setScalingAnalysis] = useState(null);
 
   useEffect(() => {
     loadGraph();
@@ -58,6 +59,8 @@ export default function RepoGraphViewer({ repoId }) {
   async function loadGraph() {
 
     const data = await fetchRepoGraph(repoId);
+
+    setScalingAnalysis(data.scaling_analysis);
 
     console.log("API response:", data);
 
@@ -69,11 +72,17 @@ export default function RepoGraphViewer({ repoId }) {
         label: `${file[0]} (${file[1]})`,
         lines: file[1]
         },
-        position: { x: i * 300, y: 200 }
+        position: { x: i * 300 - 300, y: 200 }
     }));
 
     setNodes(rfNodes);
-    setEdges([]); // backend does not send edges yet
+    const rfEdges = data.graph_edges.map((e, i) => ({
+    id: `e${i}`,
+    source: e.source,
+    target: e.target
+    }));
+
+    setEdges(rfEdges);
     }
 
   function onNodeClick(event, node) {
@@ -90,6 +99,32 @@ export default function RepoGraphViewer({ repoId }) {
             fitViewOptions={{ padding: 0.3 }}
             style={{ width: "100%", height: "100%" }}
             >
+                {scalingAnalysis && (
+                <div
+                    style={{
+                    position: "absolute",
+                    top: 20,
+                    right: 20,
+                    background: "#111",
+                    color: "white",
+                    padding: 15,
+                    borderRadius: 8,
+                    width: 250
+                    }}
+                >
+                    <h4>Scaling Risk</h4>
+
+                    <p>
+                    Score: {scalingAnalysis.overall_scaling_risk}
+                    </p>
+
+                    <ul>
+                    {scalingAnalysis.signals.map((s, i) => (
+                        <li key={i}>{s}</li>
+                    ))}
+                    </ul>
+                </div>
+                )}
             <MiniMap />
             <Controls />
             <Background />
