@@ -2,11 +2,14 @@ import asyncio
 import base64
 import requests
 from playwright.async_api import async_playwright
+from helper.github_api import fetch_file
+from helper.get_current_folder import get_current_folder
 
 API_URL = "http://127.0.0.1:8000"
 
 
 visited_files = set()
+visited_folders = set()
 
 
 async def take_screenshot(page):
@@ -67,23 +70,46 @@ async def execute_action(page, action):
     if act == "CLICK":
 
         target = action.get("target")
+        # normalize repo path → filename
+        if "/" in target:
+            target = target.split("/")[-1]
 
-        if target:
+        if not target:
+            return
 
-            link = page.locator(
-                f"tbody a.Link--primary[title='{target}']"
-            ).first
+        current_folder = get_current_folder(page.url)
 
-            href = await link.get_attribute("href")
+        next_folder = f"{current_folder}/{target}" if current_folder != "root" else target
 
-            if href:
-                await page.goto(f"https://github.com{href}")
+        if next_folder in visited_folders:
+            print("Folder already explored:", next_folder)
+            return
 
-            await page.wait_for_load_state("networkidle")
+        link = page.locator(
+            f"tbody a.Link--primary[title='{target}']"
+        )
+
+        if await link.count() == 0:
+            print("Folder not found in current view:", target)
+            return
+
+        href = await link.first.get_attribute("href")
+
+        if href:
+            await page.goto(f"https://github.com{href}")
+
+        await page.wait_for_load_state("networkidle")
+
+        visited_folders.add(next_folder)
+
+        print("Entered folder:", next_folder)
 
     elif act == "OPEN_FILE":
 
         target = action.get("target")
+        # normalize repo path → filename
+        if "/" in target:
+            target = target.split("/")[-1]
 
         if not target:
             return
@@ -94,48 +120,78 @@ async def execute_action(page, action):
 
         visited_files.add(target)
 
-        if target:
+        # Confirm the file exists in the current folder view
+        file_link = page.locator(
+            f"tbody a.Link--primary[title='{target}']"
+        ).first
 
-            file_link = page.locator(
-                f"tbody a.Link--primary[title='{target}']"
-            ).first
-
-            if await file_link.count() == 0:
-                print("File not found in current view:", target)
-                return
-
-            href = await file_link.get_attribute("href")
-
-            if href:
-                await page.goto(f"https://github.com{href}")
-
-            await page.wait_for_load_state("networkidle")
-            await page.wait_for_selector("table.js-file-line-container")
-
-        locator = page.locator("table.js-file-line-container")
-
-        if await locator.count() == 0:
-            print("No code table found — file probably not opened.")
+        if await file_link.count() == 0:
+            print("File not found in current view:", target)
             return
 
-        code = await locator.inner_text()
+        # -------------------------------
+        # Extract repo info dynamically
+        # -------------------------------
 
-        with open("temp_file.py","w", encoding="utf-8") as f:
+        url = page.url
+        parts = url.split("/")
+
+        owner = parts[3]
+        repo = parts[4]
+
+        # -------------------------------
+        # Determine current folder path
+        # -------------------------------
+
+        folder = ""
+
+        if "tree/" in url:
+            folder = url.split("tree/")[1]
+            folder = "/".join(folder.split("/")[1:])
+
+
+        # Build the file path inside repo
+        path = f"{folder}/{target}" if folder else target
+
+        # -------------------------------
+        # Fetch file using GitHub API
+        # -------------------------------
+
+        code = fetch_file(owner, repo, path)
+
+        if not code:
+            print("Failed to fetch file from GitHub API")
+            return
+
+
+        print("Fetched code preview:")
+        print(code[:500])
+
+        # -------------------------------
+        # Save temporary file
+        # -------------------------------
+
+        with open("temp_file.py", "w", encoding="utf-8") as f:
             f.write(code)
+
+        # -------------------------------
+        # Analyze structure
+        # -------------------------------
 
         from sources.structure_extractor import analyze_file
 
         analysis = analyze_file("temp_file.py")
+        analysis["file"] = target
 
         print("Parsed structure:", analysis)
 
+        # -------------------------------
+        # Store in Firestore
+        # -------------------------------
+
         from sources.firestore_client import save_file_analysis
 
-        save_file_analysis("fastapi_repo", analysis)
-
-        # go back to folder view
-        await page.go_back()
-        await page.wait_for_load_state("networkidle")
+        save_file_analysis(f"{owner}_{repo}", analysis)
 
     elif act == "SCROLL":
         # await page.mouse.wheel(0, 800)
