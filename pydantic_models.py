@@ -1,12 +1,15 @@
 from pydantic import BaseModel
 from typing import List
 
+
 class GenerateRequest(BaseModel):
     prompt: str
 
+
 class AnalyzeRequest(BaseModel):
-    instruction: str
     image_base64: str
+    instruction: str
+
 
 class AnalysisResult(BaseModel):
     visible_folders: List[str]
@@ -17,3 +20,4 @@ class AnalysisResult(BaseModel):
 
 class PlanRequest(BaseModel):
     analysis: AnalysisResult
+    files: List[str]

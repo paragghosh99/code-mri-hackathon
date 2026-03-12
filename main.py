@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from gemini_client import generate_text, generate_multimodal
-from pydantic import BaseModel
-from prompts import ANALYZE_PROMPT, ACTION_PROMPT
-from pydantic_models import AnalyzeRequest, GenerateRequest, PlanRequest
-from action_models import Coordinates, ActionPlan
 import json
+from gemini_client import generate_multimodal, generate_text
+from pydantic_models import AnalyzeRequest, PlanRequest, GenerateRequest
+from action_models import ActionPlan
+from prompts import ANALYZE_PROMPT, ACTION_PROMPT
 
 app = FastAPI()
 
@@ -12,21 +11,25 @@ app = FastAPI()
 def health_check():
     return {"status": "ok"}
 
+
 @app.post("/generate")
 def generate(request: GenerateRequest):
     output = generate_text(request.prompt)
     return {"response": output}
 
 
+# ---------- DAY 2 : REPOSITORY ANALYSIS ----------
 @app.post("/analyze")
 async def analyze(request: AnalyzeRequest):
+
+
     prompt = f"""
             {ANALYZE_PROMPT}
 
             Instruction:
             {request.instruction}
             """
-    
+
     result = generate_multimodal(prompt, request.image_base64)
 
     return {"analysis": result}
@@ -41,6 +44,9 @@ async def plan_action(request: PlanRequest):
 
             Repository analysis:
             {request.analysis.model_dump()}
+
+            Visible files:
+            {request.files}
             """
 
     result = generate_text(prompt)

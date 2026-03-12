@@ -38,11 +38,13 @@ Schema:
 
 {
  "action": "CLICK | SCROLL | SEARCH | OPEN_FILE",
- "coordinates": {"x": int, "y": int},
+ "target": "file_or_folder_name",
  "reason": "Explain why this action helps explore the repository"
 }
 
 Rules:
+- Choose target only from the provided file list
+- Do not return coordinate
 - Only use the allowed actions
 - Output must be valid JSON
 - Do not include markdown
