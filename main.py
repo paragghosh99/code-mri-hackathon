@@ -6,6 +6,9 @@ from action_models import ActionPlan
 from prompts import ANALYZE_PROMPT, ACTION_PROMPT
 from services.repo_graph_route import router as graph_router
 from services.dependency_graph import analyze_repo
+from intent_detector import detect_intent
+from command_router import execute_command
+from command_validator import validate_command
 
 app = FastAPI()
 app.include_router(graph_router)
@@ -72,3 +75,43 @@ async def plan_action(request: PlanRequest):
         return {"action_plan": action}
     except Exception:
         return {"error": "Invalid action plan generated"}
+
+
+from fastapi import Body
+
+
+@app.post("/command")
+def command_api(data: dict = Body(...)):
+
+    user_query = data.get("query")
+
+    repo_id = "fastapi_fastapi"
+
+    # Detect intent
+    intent = detect_intent(user_query)
+
+    command = intent.get("command")
+    confidence = intent.get("confidence")
+
+    # Validate command
+    if not validate_command(command):
+
+        return {
+            "error": "Unsupported command",
+            "supported_commands": [
+            "simulate_scaling",
+            "explain_risk",
+            "analyze_dependencies",
+            "show_architecture"
+            ],
+            "confidence": confidence
+            }
+
+    # Execute command
+    result = execute_command(command, repo_id)
+
+    return {
+        "command_executed": command,
+        "result": result,
+        "confidence": confidence
+    }

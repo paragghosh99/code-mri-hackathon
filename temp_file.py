@@ -1,26 +1,48 @@
-# Important confirmations:
-# This mirrors my API Task
-# This is not Pydantic
-# This class exists for persistence only
-# No validation. No JSON. No API logic.
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
+
+# What client sends
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+
+# What client receives
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    is_done: bool
+
+    class Config:
+        from_attributes = True
+
+# UPDATE needs optional fields
+# Optional fields → enables partial updates
+# Presence ≠ overwrite unless explicitly sent
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    is_done: Optional[bool] = None
 
 
-from sqlalchemy import Column, Integer, String, Boolean
-from app.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
-
-class Task(Base):
-    __tablename__ = "tasks"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    is_done = Column(Boolean, default=False)
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=72)
 
 
-class User(Base):
-    __tablename__ = "users"
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(unique=True, index=True)
-    hashed_password: Mapped[str] = mapped_column(nullable=False)
+    class Config:
+        from_attributes = True
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
