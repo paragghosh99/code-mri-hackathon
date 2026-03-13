@@ -175,8 +175,16 @@ export default function RepoGraphViewer({ repoId }) {
                       color: "#d1d5db"
                     }}
                   >
-                    {aiExplanation}
+                    {aiExplanation.explanation}
                   </div>
+
+                  <h4 style={{ marginTop: 10 }}>Recommendations</h4>
+
+                  <ul style={{ paddingLeft: 18 }}>
+                    {aiExplanation.recommendations?.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
                 </>
               )}
             </div>

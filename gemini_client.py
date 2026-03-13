@@ -7,6 +7,9 @@ from vertexai.generative_models import GenerativeModel
 from google.genai.types import Part
 from vertexai.generative_models import Part as vPart
 import json
+import time
+
+REQUEST_TIMEOUT = 20
 
 load_dotenv()
 
@@ -44,10 +47,15 @@ def studio_generate_text(prompt: str):
 
     client = genai.Client(api_key=API_KEY)
 
+    start = time.time()
+
     response = client.models.generate_content(
         model="models/gemini-2.5-flash",
         contents=prompt
     )
+
+    if time.time() - start > REQUEST_TIMEOUT:
+        raise TimeoutError("Gemini request timed out")
 
     return response.text
 
@@ -77,11 +85,16 @@ def vertex_generate_multimodal(prompt: str, image_base64: str):
 # ---------- VERTEX TEXT ----------
 def vertex_generate_text(prompt: str):
 
+    start = time.time()
+
     vertexai.init(project=PROJECT_ID, location=REGION)
 
     model = GenerativeModel("gemini-2.5-flash")
 
     response = model.generate_content(prompt)
+
+    if time.time() - start > REQUEST_TIMEOUT:
+        raise TimeoutError("Gemini request timed out")
 
     return response.text
 
@@ -102,3 +115,25 @@ def generate_text(prompt: str):
         return vertex_generate_text(prompt)
 
     return studio_generate_text(prompt)
+
+MAX_RETRIES = 3
+
+
+def generate_text_with_retry(prompt: str):
+
+    for attempt in range(MAX_RETRIES):
+
+        try:
+
+            result = generate_text(prompt)
+
+            return result
+
+        except Exception as e:
+
+            print(f"Gemini attempt {attempt+1} failed:", e)
+
+            if attempt == MAX_RETRIES - 1:
+                return None
+
+            time.sleep(2)

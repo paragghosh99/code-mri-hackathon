@@ -90,7 +90,8 @@ def analyze_repo(repo_id):
     simulation = run_scaling_simulation(G)
 
 # AI explanation layer
-    ai_explanation = explain_scaling(simulation)    
+    ai_explanation = explain_scaling(simulation)
+    simulation["ai_explanation"] = ai_explanation
 
     # NEW: export graph edges
     graph_edges = [
