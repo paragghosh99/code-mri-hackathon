@@ -23,3 +23,9 @@ class PlanRequest(BaseModel):
     files: List[str]
     visited_files: List[str]
     visited_folders: List[str]
+
+
+class AIExplanation(BaseModel):
+    confidence: float
+    explanation: str
+    recommendations: List[str]

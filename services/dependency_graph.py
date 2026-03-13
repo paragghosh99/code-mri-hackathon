@@ -1,4 +1,5 @@
 from google.cloud import firestore
+from services.ai_explainer import explain_scaling
 import networkx as nx
 from services.scaling_simulator import run_scaling_simulation
 
@@ -88,6 +89,9 @@ def analyze_repo(repo_id):
 
     simulation = run_scaling_simulation(G)
 
+# AI explanation layer
+    ai_explanation = explain_scaling(simulation)    
+
     # NEW: export graph edges
     graph_edges = [
         {"source": u, "target": v}
@@ -95,9 +99,10 @@ def analyze_repo(repo_id):
     ]
 
     return {
-        "nodes": G.number_of_nodes(),
-        "edges": G.number_of_edges(),
-        "top_files": top,
-        "graph_edges": graph_edges,
-        "scaling_analysis": simulation
+    "nodes": G.number_of_nodes(),
+    "edges": G.number_of_edges(),
+    "top_files": top,
+    "graph_edges": graph_edges,
+    "scaling_analysis": simulation,
+    "ai_explanation": ai_explanation
     }
