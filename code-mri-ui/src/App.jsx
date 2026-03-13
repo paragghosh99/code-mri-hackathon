@@ -5,12 +5,14 @@ function App() {
   const repoId = "paragghosh99_task_app_auth_testing";
 
   return (
-    <div style={{ height: "100vh" }}>
-      <h2 style={{ padding: "10px" }}>
+    <div style={{ width: "100%", height: "100vh" }}>
+      <h2 style={{ padding: "10px", margin: 0 }}>
         Code MRI – Architecture Viewer
       </h2>
 
-      <RepoGraphViewer repoId={repoId} />
+      <div style={{ height: "calc(100vh - 50px)" }}>
+        <RepoGraphViewer repoId={repoId} />
+      </div>
     </div>
   );
 }
