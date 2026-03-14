@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AiOrb from "../components/AiOrb";
+import "../style.css";
 
 export default function ChatPage() {
 
@@ -26,21 +28,21 @@ export default function ChatPage() {
     ]);
 
     setLoading(true);
+    setProgress([]);
 
     const steps = [
-      "Analyzing repository...",
-      "✔ Crawling repository",
-      "✔ Parsing files",
-      "✔ Building dependency graph",
-      "✔ Running scaling simulation",
-      "✔ Generating AI explanation"
+      "Crawling repository...",
+      "Parsing files...",
+      "Building dependency graph...",
+      "Running scaling simulation...",
+      "Generating AI explanation..."
     ];
 
     let stepIndex = 0;
 
     const interval = setInterval(() => {
 
-      setProgress((prev) => [...prev, steps[stepIndex]]);
+      setProgress([steps[stepIndex]]);
 
       stepIndex++;
 
@@ -48,7 +50,7 @@ export default function ChatPage() {
         clearInterval(interval);
       }
 
-    }, 800);
+    }, 1200);
 
     try {
 
@@ -66,20 +68,21 @@ export default function ChatPage() {
 
       const data = await response.json();
 
-        console.log("API response:", data);
+      console.log("API response:", data);
 
-        setRepoId(data.repo_id || `${owner}_${repo}`);
+      setRepoId(data.repo_id || `${owner}_${repo}`);
 
-        setMessages((prev) => [
+      setMessages((prev) => [
         ...prev,
         {
-            role: "assistant",
-            text: `Command executed: ${data.command_executed}
-        Confidence: ${data.confidence}
+          role: "assistant",
+          text: `Command executed: ${data.command_executed}
+Confidence: ${data.confidence}
 
-        Repository analysis complete.`
+Repository analysis complete.`
         }
-        ]);
+      ]);
+
     } catch (err) {
 
       setMessages((prev) => [
@@ -107,147 +110,83 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={container}>
+    <div className="landing-container">
 
-      <h1 style={title}>Code MRI</h1>
+      <div className="title-block">
+        <h1 className="landing-title">Code MRI</h1>
+        <div className="landing-subtitle">
+            AI Architecture Intelligence
+        </div>
+     </div>
 
-      <div style={inputRow}>
+      
 
-        <input
-          placeholder="Owner ID"
-          value={owner}
-          onChange={(e) => setOwner(e.target.value)}
-          style={input}
-        />
+      <AiOrb
+        processing={loading}
+        completed={!loading && repoId}
+      />
 
-        <input
-          placeholder="Repository Name"
-          value={repo}
-          onChange={(e) => setRepo(e.target.value)}
-          style={input}
-        />
+      <div className="status-message">
+        {progress.length > 0
+            ? (repoId && !loading
+                ? "Analysis completed"
+                : progress[progress.length - 1])
+            : ""}
+        </div>
 
-      </div>
+        <div className="repo-command-row">
 
-      <div style={chatBox}>
+            <input
+                placeholder="Owner"
+                value={owner}
+                onChange={(e) => setOwner(e.target.value)}
+                className="repo-input"
+            />
 
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            style={{
-              ...message,
-              alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-              background: m.role === "user" ? "#3b82f6" : "#1f2937"
-            }}
-          >
-            {m.text}
-          </div>
-        ))}
+            <input
+                placeholder="Repository"
+                value={repo}
+                onChange={(e) => setRepo(e.target.value)}
+                className="repo-input"
+            />
 
-        {loading && (
-          <div style={progressBox}>
-            {progress.map((p, i) => (
-              <div key={i}>{p}</div>
-            ))}
-            <div style={{ marginTop: 10 }}>
-              Estimated time: 2–4 minutes
+            <button onClick={handleSubmit} className="send-button">
+                Send
+            </button>
+
             </div>
-          </div>
-        )}
 
-      </div>
-
-      <div style={commandRow}>
+      {/* <div className="command-area">
 
         <input
           placeholder="Type command..."
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          style={commandInput}
+          className="command-input"
         />
 
-        <button onClick={handleSubmit} style={button}>
+        <button onClick={handleSubmit} className="send-button">
           Send
         </button>
 
-      </div>
+      </div> */}
 
       {repoId && (
-        <button onClick={openGraph} style={viewButton}>
+        <button onClick={openGraph} className="view-button">
           View Hierarchy
         </button>
       )}
+      <div className="command-box">
+
+        <input
+            placeholder="Type command..."
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
+            className="command-input"
+        />
+
+        </div>
 
     </div>
   );
 }
-
-const container = {
-  width: "100%",
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: 30
-};
-
-const title = {
-  marginBottom: 20
-};
-
-const inputRow = {
-  display: "flex",
-  gap: 10,
-  marginBottom: 20
-};
-
-const input = {
-  padding: 10,
-  width: 200
-};
-
-const chatBox = {
-  width: 700,
-  height: 400,
-  border: "1px solid #444",
-  borderRadius: 10,
-  padding: 20,
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-  overflowY: "auto"
-};
-
-const message = {
-  padding: 12,
-  borderRadius: 10,
-  maxWidth: "70%"
-};
-
-const commandRow = {
-  display: "flex",
-  marginTop: 20,
-  gap: 10
-};
-
-const commandInput = {
-  width: 500,
-  padding: 10
-};
-
-const button = {
-  padding: "10px 20px"
-};
-
-const progressBox = {
-  background: "#111",
-  padding: 15,
-  borderRadius: 10,
-  marginTop: 10
-};
-
-const viewButton = {
-  marginTop: 20,
-  padding: "12px 30px",
-  fontSize: 16
-};

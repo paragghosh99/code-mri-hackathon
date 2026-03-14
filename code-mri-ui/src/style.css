@@ -34,9 +34,9 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: auto;
+  margin: 0 ;
+  padding: 0;
   text-align: center;
 }
 
@@ -130,3 +130,363 @@ html, body, #root {
 .react-flow__controls button svg {
   fill: #e5e7eb;
 }
+
+/* ============================= */
+/* LANDING PAGE BACKGROUND */
+/* ============================= */
+
+.landing-container {
+
+  height: 100vh;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #0f172a;
+
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0);
+
+  background-size: 28px 28px;
+
+  color: #e5e7eb;
+}
+
+
+/* ============================= */
+/* TITLE */
+/* ============================= */
+
+.landing-title {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+.title-block{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.landing-subtitle{
+  font-size:18px;
+  color:#60a5fa;
+  margin-top:6px;
+  font-weight:500;
+}
+
+/* ============================= */
+/* INPUTS */
+/* ============================= */
+
+.repo-inputs{
+
+  display:flex;
+  gap:14px;
+
+  justify-content:center;
+  align-items:center;
+
+  margin-bottom:20px;
+
+}
+
+.repo-input {
+
+  padding: 10px 16px;
+
+  width: 220px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(148,163,184,0.25);
+
+  background: rgba(30,41,59,0.7);
+
+  color: white;
+
+  backdrop-filter: blur(6px);
+
+}
+
+.repo-input:focus {
+
+  outline: none;
+
+  border: 1px solid #3b82f6;
+
+  box-shadow: 0 0 8px rgba(59,130,246,0.6);
+
+}
+.repo-command-row{
+
+  display:flex;
+  gap:14px;
+
+  align-items:center;
+  justify-content:center;
+
+  margin-top:20px;
+}
+
+
+/* ============================= */
+/* COMMAND INPUT */
+/* ============================= */
+
+.command-box{
+
+  margin-top:25px;
+
+  display:flex;
+  justify-content:center;
+}
+
+.command-input {
+
+  width:420px;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  border:1px solid rgba(148,163,184,0.25);
+
+  background:rgba(30,41,59,0.7);
+
+  color:white;
+
+  text-align:left;
+}
+
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
+
+.send-button {
+
+  padding: 12px 24px;
+
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+}
+
+.send-button:hover {
+
+  box-shadow: 0 0 12px rgba(59,130,246,0.8);
+
+  transform: translateY(-1px);
+
+}
+
+
+.view-button {
+
+  margin-top: 30px;
+
+  padding: 14px 36px;
+
+  border-radius: 12px;
+
+  font-size: 16px;
+
+  background: #1d4ed8;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  animation: pulseGlow 2s infinite;
+
+}
+
+@keyframes pulseGlow {
+
+  0% { box-shadow: 0 0 0px rgba(59,130,246,0.6); }
+
+  50% { box-shadow: 0 0 18px rgba(59,130,246,0.9); }
+
+  100% { box-shadow: 0 0 0px rgba(59,130,246,0.6); }
+
+}
+
+
+/* ============================= */
+/* STATUS MESSAGE */
+/* ============================= */
+
+.status-message {
+
+  height: 28px;
+  min-height: 28px;
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  font-size: 18px;
+  font-weight: 500;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  animation: fadeUp 0.6s ease;
+}
+
+.status-placeholder{
+  height:28px;
+}
+
+@keyframes fadeUp {
+
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+/* ============================= */
+/* AI ORB */
+/* ============================= */
+
+.orb-container {
+
+  margin-top: 10px;
+
+  margin-bottom: 30px;
+
+}
+
+.ai-orb {
+
+  width: 120px;
+
+  height: 120px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(circle at 30% 30%, #60a5fa, #1e3a8a);
+
+  box-shadow:
+
+    0 0 25px rgba(59,130,246,0.8),
+    inset 0 0 25px rgba(255,255,255,0.1);
+
+  position: relative;
+
+  animation: orbBreath 3s infinite ease-in-out;
+
+}
+
+.orb-processing {
+
+  animation: orbRotate 4s linear infinite;
+
+}
+
+.orb-complete {
+
+  animation: orbComplete 1s ease;
+
+}
+
+.orb-inner-wave {
+
+  position: absolute;
+
+  width: 100%;
+
+  height: 100%;
+
+  border-radius: 50%;
+
+  background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+
+  animation: waveMove 3s infinite;
+
+}
+
+@keyframes orbRotate {
+
+  from { transform: rotate(0deg); }
+
+  to { transform: rotate(360deg); }
+
+}
+
+@keyframes orbBreath {
+
+  0% { transform: scale(1); }
+
+  50% { transform: scale(1.05); }
+
+  100% { transform: scale(1); }
+
+}
+
+@keyframes orbComplete {
+
+  0% { transform: scale(1); }
+
+  50% { transform: scale(1.15); }
+
+  100% { transform: scale(1); }
+
+}
+
+@keyframes waveMove {
+
+  0% { opacity: 0.3; }
+
+  50% { opacity: 0.7; }
+
+  100% { opacity: 0.3; }
+
+}
+
+/* ============================= */
+/* FIX LANDING PAGE WIDTH */
+/* ============================= */
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.landing-container {
+
+  width: 100%;
+  height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
