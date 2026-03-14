@@ -30,7 +30,7 @@ User request:
 
 def detect_intent(user_query: str):
 
-    prompt = INTENT_PROMPT + user_query
+    prompt = INTENT_PROMPT + (user_query or "")
 
     response = generate_text_with_retry(prompt)
 

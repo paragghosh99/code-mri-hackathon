@@ -110,7 +110,10 @@ def command_api(data: dict = Body(...)):
 
     owner = data.get("owner")
     repo = data.get("repo")
-    user_query = data.get("query")
+    user_query = data.get("query") or data.get("command")
+
+    if not user_query:
+        return {"error": "No command provided"}
 
     repo_id = f"{owner}_{repo}"
 
@@ -160,7 +163,8 @@ def command_api(data: dict = Body(...)):
     result = execute_command(command, repo_id)
 
     return {
-        "command_executed": command,
-        "result": result,
-        "confidence": confidence
+    "repo_id": repo_id,
+    "command_executed": command,
+    "result": result,
+    "confidence": confidence
     }
