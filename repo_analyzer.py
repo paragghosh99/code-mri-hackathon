@@ -12,12 +12,19 @@ def repo_analyzer(owner, repo):
     try:
 
         # FAST PATH — GitHub API
-        url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/main?recursive=1"
+        repo_meta = requests.get(f"https://api.github.com/repos/{owner}/{repo}")
+
+        if repo_meta.status_code != 200:
+            raise Exception("GitHub repo not accessible")
+
+        default_branch = repo_meta.json()["default_branch"]
+
+        url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1"
 
         r = requests.get(url)
 
         if r.status_code != 200:
-            raise Exception("GitHub API failed")
+            raise Exception("GitHub tree fetch failed")
 
         data = r.json()
 
