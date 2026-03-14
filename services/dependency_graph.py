@@ -1,7 +1,12 @@
+# In-memory cache
+GRAPH_CACHE = {}
+
 from google.cloud import firestore
 from services.ai_explainer import explain_scaling
 import networkx as nx
 from services.scaling_simulator import run_scaling_simulation
+from pathlib import Path
+import json
 
 db = firestore.Client()
 
@@ -74,36 +79,57 @@ def transitive_impact(G, target_file):
 
 def analyze_repo(repo_id):
 
-    files = load_repo_files(repo_id)
+    # 1️⃣ Get graph from cache or build it
+    if repo_id in GRAPH_CACHE:
+        G = GRAPH_CACHE[repo_id]
 
-    if not files:
-        return {
-            "nodes": 0,
-            "edges": 0,
-            "top_files": []
-        }
+    else:
+        files = load_repo_files(repo_id)
 
-    G = build_dependency_graph(files)
+        if not files:
+            return {
+                "nodes": 0,
+                "edges": 0,
+                "top_files": []
+            }
 
+        G = build_dependency_graph(files)
+
+        # store in cache
+        GRAPH_CACHE[repo_id] = G
+
+    # 2️⃣ Run analysis (always runs now)
     top = most_connected_files(G)[:5]
 
     simulation = run_scaling_simulation(G)
 
-# AI explanation layer
-    ai_explanation = explain_scaling(simulation)
-    simulation["ai_explanation"] = ai_explanation
+    AI_CACHE = Path("ai_cache")
+    AI_CACHE.mkdir(exist_ok=True)
 
-    # NEW: export graph edges
+    cache_file = AI_CACHE / f"{repo_id}.json"
+
+    if cache_file.exists():
+
+        with open(cache_file) as f:
+            ai_explanation = json.load(f)
+
+    else:
+
+        ai_explanation = explain_scaling(simulation)
+
+        with open(cache_file, "w") as f:
+            json.dump(ai_explanation, f)
+
     graph_edges = [
         {"source": u, "target": v}
         for u, v in G.edges()
     ]
 
     return {
-    "nodes": G.number_of_nodes(),
-    "edges": G.number_of_edges(),
-    "top_files": top,
-    "graph_edges": graph_edges,
-    "scaling_analysis": simulation,
-    "ai_explanation": ai_explanation
+        "nodes": G.number_of_nodes(),
+        "edges": G.number_of_edges(),
+        "top_files": top,
+        "graph_edges": graph_edges,
+        "scaling_analysis": simulation,
+        "ai_explanation": ai_explanation
     }

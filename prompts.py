@@ -66,7 +66,6 @@ You must follow these strict rules:
 Return ONLY JSON in this schema:
 
 {
- "confidence": float,
  "explanation": "string",
  "recommendations": ["string"]
 }

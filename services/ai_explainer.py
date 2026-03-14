@@ -32,22 +32,25 @@ def calculate_confidence(metrics):
 def explain_scaling(metrics):
 
     prompt = f"""
-{SYSTEM_PROMPT}
+                {SYSTEM_PROMPT}
 
-INPUT METRICS:
+                INPUT METRICS:
 
-{json.dumps(metrics, indent=2)}
+                {json.dumps(metrics)}
 
-Return JSON in this format:
+                Return JSON in this format:
 
-{{
- "confidence": float,
- "explanation": "string",
- "recommendations": ["string"]
-}}
-"""
+                {{
+                "explanation": "string",
+                "recommendations": ["string"]
+                }}
+            """
 
     response = generate_text_with_retry(prompt)
+
+    print("\n---- RAW GEMINI RESPONSE ----")
+    print(response)
+    print("-----------------------------\n")
 
     if response is None:
         return {
@@ -60,22 +63,60 @@ Return JSON in this format:
         }
 
     cleaned = (
-        response
-        .replace("```json", "")
-        .replace("```", "")
-        .strip()
+        response.strip()
     )
 
-    parsed = json.loads(cleaned)
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
 
+    if start != -1 and end != -1 and end > start:
+        cleaned = cleaned[start:end+1]
+
+    # cleaned = cleaned[start:end]
+
+    try:
+        parsed = json.loads(cleaned)
+
+    except json.JSONDecodeError:
+
+        explanation_text = cleaned
+        recommendations = []
+
+        if "recommendations" in cleaned:
+
+            parts = cleaned.split("recommendations/")
+
+            explanation_text = parts[0].strip()
+
+            rec_text = parts[1]
+
+            # split lines and clean them
+            for line in rec_text.split("\n"):
+                line = line.strip("-•* ").strip()
+                if line:
+                    recommendations.append(line)
+
+        # fallback if nothing extracted
+        if not recommendations:
+            recommendations = [
+                "Architectural recommendations could not be structured automatically."
+            ]
+
+        parsed = {
+            "explanation": explanation_text,
+            "recommendations": recommendations
+        }
+    
     # Ensure required fields exist
     if "recommendations" not in parsed:
         parsed["recommendations"] = [
             "Further architectural analysis required."
         ]
 
-    if "confidence" not in parsed:
-        parsed["confidence"] = 0.5
+    # if "confidence" not in parsed:
+    #     parsed["confidence"] = 0.5
+
+    parsed["confidence"] = calculate_confidence(metrics)
 
     validated = AIExplanation(**parsed)
 
@@ -83,7 +124,7 @@ Return JSON in this format:
 
     validated.explanation += "\n\n" + DISCLAIMER
 
-    print("Gemini explanation:", validated.explanation)
+    # print("Gemini explanation:", validated.explanation)
 
     try:
         return validated.model_dump()

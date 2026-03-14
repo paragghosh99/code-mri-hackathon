@@ -51,7 +51,12 @@ def studio_generate_text(prompt: str):
 
     response = client.models.generate_content(
         model="models/gemini-2.5-flash",
-        contents=prompt
+        contents=prompt,
+        config={
+            "max_output_tokens": 5000,
+            "temperature": 0.2,
+            # "response_mime_type": "application/json"
+        }
     )
 
     if time.time() - start > REQUEST_TIMEOUT:
@@ -91,7 +96,14 @@ def vertex_generate_text(prompt: str):
 
     model = GenerativeModel("gemini-2.5-flash")
 
-    response = model.generate_content(prompt)
+    response = model.generate_content(
+        prompt,
+        generation_config={
+        "max_output_tokens": 5000,
+        "temperature": 0.2,
+        # "response_mime_type": "application/json"
+        },
+    )
 
     if time.time() - start > REQUEST_TIMEOUT:
         raise TimeoutError("Gemini request timed out")
