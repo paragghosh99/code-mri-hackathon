@@ -1,48 +1,14 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from dotenv import load_dotenv
+load_dotenv()
 
-# What client sends
-class TaskCreate(BaseModel):
-    title: str
-    description: str
+import os
+from google import genai
 
-# What client receives
-class TaskResponse(BaseModel):
-    id: int
-    title: str
-    description: str
-    is_done: bool
+api_key = os.getenv("GEMINI_API_KEY")
 
-    class Config:
-        from_attributes = True
+client = genai.Client(api_key=api_key)
 
-# UPDATE needs optional fields
-# Optional fields → enables partial updates
-# Presence ≠ overwrite unless explicitly sent
-class TaskUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    is_done: Optional[bool] = None
+models = client.models.list()
 
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=72)
-
-
-class UserResponse(BaseModel):
-    id: int
-    email: EmailStr
-
-    class Config:
-        from_attributes = True
-
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+for model in models:
+    print(model.name)

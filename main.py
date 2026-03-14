@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 import json
+import threading
+import time
+
 from gemini_client import generate_multimodal, generate_text
 from pydantic_models import AnalyzeRequest, PlanRequest, GenerateRequest
 from action_models import ActionPlan
@@ -10,14 +13,23 @@ from intent_detector import detect_intent
 from command_router import execute_command
 from command_validator import validate_command
 
+# from browser_loop import run_crawler
+from repo_analyzer import repo_analyzer 
+
+from google.cloud import firestore
+
+
 app = FastAPI()
 app.include_router(graph_router)
+
+db = firestore.Client()
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["http://localhost:5173"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,13 +51,12 @@ def generate(request: GenerateRequest):
 @app.post("/analyze")
 async def analyze(request: AnalyzeRequest):
 
-
     prompt = f"""
-            {ANALYZE_PROMPT}
+    {ANALYZE_PROMPT}
 
-            Instruction:
-            {request.instruction}
-            """
+    Instruction:
+    {request.instruction}
+    """
 
     result = generate_multimodal(prompt, request.image_base64)
 
@@ -57,14 +68,14 @@ async def analyze(request: AnalyzeRequest):
 async def plan_action(request: PlanRequest):
 
     prompt = f"""
-            {ACTION_PROMPT}
+    {ACTION_PROMPT}
 
-            Repository analysis:
-            {request.analysis.model_dump()}
+    Repository analysis:
+    {request.analysis.model_dump()}
 
-            Visible files:
-            {request.files}
-            """
+    Visible files:
+    {request.files}
+    """
 
     result = generate_text(prompt)
 
@@ -77,37 +88,75 @@ async def plan_action(request: PlanRequest):
         return {"error": "Invalid action plan generated"}
 
 
-from fastapi import Body
+# ---------- HELPER : CHECK IF REPO ALREADY ANALYZED ----------
+def repo_exists(repo_id):
+
+    doc = db.collection("repo_analysis").document(repo_id).get()
+
+    return doc.exists
 
 
+# ---------- HELPER : START CRAWLER ----------
+def start_crawler(owner, repo):
+
+    print("Starting crawler for:", owner, repo)
+
+    repo_analyzer(owner, repo)
+
+
+# ---------- DAY 11 : COMMAND API ----------
 @app.post("/command")
 def command_api(data: dict = Body(...)):
 
+    owner = data.get("owner")
+    repo = data.get("repo")
     user_query = data.get("query")
 
-    repo_id = "fastapi_fastapi"
+    repo_id = f"{owner}_{repo}"
 
-    # Detect intent
+    print("User query:", user_query)
+    print("Repo:", repo_id)
+
+    # ---------- START CRAWLER IF NEEDED ----------
+    if not repo_exists(repo_id):
+
+        print("Repo not analyzed yet. Starting crawler...")
+
+        threading.Thread(
+            target=repo_analyzer,
+            args=(owner, repo),
+            daemon=True
+        ).start()
+
+        return {
+            "status": "analysis_started",
+            "message": "Repository analysis started. Please wait a few minutes.",
+            "repo_id": repo_id
+        }
+
+    # ---------- DETECT INTENT ----------
     intent = detect_intent(user_query)
 
     command = intent.get("command")
     confidence = intent.get("confidence")
 
-    # Validate command
+    print("Detected command:", command)
+
+    # ---------- VALIDATE COMMAND ----------
     if not validate_command(command):
 
         return {
             "error": "Unsupported command",
             "supported_commands": [
-            "simulate_scaling",
-            "explain_risk",
-            "analyze_dependencies",
-            "show_architecture"
+                "simulate_scaling",
+                "explain_risk",
+                "analyze_dependencies",
+                "show_architecture"
             ],
             "confidence": confidence
-            }
+        }
 
-    # Execute command
+    # ---------- EXECUTE COMMAND ----------
     result = execute_command(command, repo_id)
 
     return {

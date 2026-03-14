@@ -227,7 +227,7 @@ async def execute_action(page, action):
     print("Executed:", act)
 
 
-async def main():
+async def main(owner, repo):
 
     print("Starting browser agent")
 
@@ -238,7 +238,12 @@ async def main():
             viewport={"width": 1600, "height": 1000}
         )
 
-        await page.goto("https://github.com/paragghosh99/task_app_auth_testing")
+        # await page.goto("https://github.com/paragghosh99/task_app_auth_testing")
+        repo_url = f"https://github.com/{owner}/{repo}"
+
+        print("Opening repo:", repo_url)
+
+        await page.goto(repo_url)
 
         for _ in range(20):
 
@@ -296,4 +301,8 @@ async def main():
             print("===== LOOP END =====\n")
 
 
-asyncio.run(main())
+# asyncio.run(main())
+def run_crawler(owner, repo):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main(owner, repo))
