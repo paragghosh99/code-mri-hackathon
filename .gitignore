@@ -1,0 +1,82 @@
+# -----------------------------
+# Python (Backend)
+# -----------------------------
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+# -----------------------------
+# Environment Variables
+# -----------------------------
+
+.env
+.env.local
+.env.production
+
+
+# -----------------------------
+# Node / Frontend
+# -----------------------------
+
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# -----------------------------
+# IDE
+# -----------------------------
+
+.vscode/
+.idea/
+
+
+# -----------------------------
+# OS junk
+# -----------------------------
+
+.DS_Store
+Thumbs.db
+
+
+# -----------------------------
+# Logs
+# -----------------------------
+
+*.log
+
+
+# -----------------------------
+# Docker
+# -----------------------------
+
+docker-compose.override.yml
+
+
+# -----------------------------
+# AI Cache
+# -----------------------------
+
+ai_cache/

@@ -1,0 +1,42 @@
+[33m8cec8bc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m remove hardcoded github token
+[33m8d2146f[m Final commit before demo
+[33m23da67a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m readMe
+[33ma244522[m Link fix
+[33md95cdd4[m Image and Link fix
+[33m8c73848[m How we built it fix
+[33mdaf0b9c[m Image fix
+[33mff5e20e[m Link and Image fix
+[33m09a5f81[m FIX2 System Architecture
+[33m681cad8[m FIX System Architecture2
+[33mc2e7339[m FIX System Architecture
+[33m5d2c6dd[m Github page created
+[33m81f370b[m tsc deleted from build in code-mri-ui/package.json
+[33m16e30a1[m Docker agnolistic. UI changed and ready for deployment
+[33m76997b2[m UI Updates
+[33m72d4a83[m Changed command dependency from UI + backend
+[33m30df3dc[m UI changes for Code MRI
+[33m4be743d[m Basic Frontend built. Needs polishing
+[33m76a42b1[m Change from main to default branch analysis github repo url has been made dynamic
+[33mff40474[m Repo Analyzer
+[33m988c615[m Added caching for ai explanation
+[33m417a0a2[m Day 11 without UI
+[33m995f80d[m Day 10 retry logic implemented
+[33mc67eeb7[m Day 9 chamges
+[33md131362[m Fixed frontend layout and stylings
+[33m332700c[m refactored crawler logic to navigate to all the sub folders
+[33mbb91b6b[m fixed the frontend left spacing issue
+[33m18bf313[m Scaling simulation engine implemented
+[33meca8ac2[m Implemented the frontend using React, vine
+[33m58242a9[m Day6 files-deleted:test-data
+[33mf98c17b[m Day6 completed
+[33m26db1e0[m Day 5 completed
+[33m3438ea4[m Merge two repos
+[33m628c702[m Changed from coords to file names
+[33mc499ef8[m Deleted day3 branch after nerge
+[33mfc64fab[m Merge pull request #1 from HOGLucifer/day3
+[33m5000dd3[m Day 4 updates
+[33mad97bda[m DAy 4 updates
+[33m012d569[m refactored Day 3
+[33m3810650[m Day3 Changes
+[33mc14d2d5[m Day 2 changes
+[33m4bc6a9d[m Implemented /health & /generate endpoints
