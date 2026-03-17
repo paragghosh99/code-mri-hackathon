@@ -14,15 +14,14 @@ export default function GraphPage() {
   }
 
   return (
-    <div style={{ width: "100%", height: "100vh" }}>
-      <div className="title-block">
-        <h1 className="landing-title">Code MRI</h1>
-        
-     </div>
+    <div className="graph-page">
 
-     <div className="graph-page">
+      <h1 className="graph-title">Code MRI</h1>
+
+      <div className="graph-container">
         <RepoGraphViewer repoId={repoId} />
-    </div>
+      </div>
+
     </div>
   );
 }

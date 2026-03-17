@@ -188,15 +188,15 @@ html, body, #root {
       0 0 30px rgba(96,165,250,0.6);
 
 }
-.title-block{
+.title-block {
+  width: 100%;
+  max-width: 1200px;
 
-  position:absolute;
+  display: flex;
+  justify-content: flex-start;
 
-  top:0px;
-  left:30px;
-
-  text-align:left;
-
+  margin-bottom: 10px;
+  padding-left: 10px;
 }
 
 /* .landing-subtitle{
@@ -205,22 +205,13 @@ html, body, #root {
   margin-top:6px;
   font-weight:500;
 } */
-.landing-subtitle{
+.landing-subtitle {
+  text-align: center;
+  margin-bottom: 20px;
 
-  position:absolute;
-
-  top:80px;
-
-  left:50%;
-
-  transform:translateX(-50%);
-
-  font-size:18px;
-
-  color:#60a5fa;
-
-  font-weight:500;
-
+  font-size: 18px;
+  color: #60a5fa;
+  font-weight: 500;
 }
 /* ============================= */
 /* INPUTS */
@@ -239,21 +230,17 @@ html, body, #root {
 }
 
 .repo-input {
+  flex: 1 1 180px;
 
   padding: 10px 16px;
 
-  width: 220px;
-
   border-radius: 10px;
-
   border: 1px solid rgba(148,163,184,0.25);
 
   background: rgba(30,41,59,0.7);
-
   color: white;
 
-  backdrop-filter: blur(6px);
-
+  min-width: 0;
 }
 
 .repo-input:focus {
@@ -265,15 +252,20 @@ html, body, #root {
   box-shadow: 0 0 8px rgba(59,130,246,0.6);
 
 }
-.repo-command-row{
+.repo-command-row {
+  display: flex;
+  gap: 12px;
 
-  display:flex;
-  gap:14px;
+  align-items: center;
+  justify-content: center;
 
-  align-items:center;
-  justify-content:center;
+  flex-wrap: wrap;
 
-  margin-top:20px;
+  width: 100%;
+  max-width: 600px;
+
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -327,6 +319,13 @@ html, body, #root {
 
   transition: all 0.25s ease;
 
+  flex: 0 0 auto;
+  min-width: 100px;
+
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .send-button:hover {
@@ -429,10 +428,9 @@ html, body, #root {
 
 .orb-container{
 
-  margin-top:10px;
-  margin-bottom:20px;
+  margin: 20px 0;
 
-  min-height:340px;
+  min-height: auto;
 
   display:flex;
   align-items:center;
@@ -442,25 +440,21 @@ html, body, #root {
 
 /* MAIN ORB */
 
-.ai-orb{
+.ai-orb {
+  width: clamp(220px, 35vw, 360px);
+  height: clamp(220px, 35vw, 360px);
 
-  width:360px;
-  height:360px;
+  border-radius: 50%;
+  position: relative;
 
-  border-radius:50%;
-
-  position:relative;
-
-  background:radial-gradient(circle at center,#0b122a 30%, #020617 100%);
+  background: radial-gradient(circle at center,#0b122a 30%, #020617 100%);
 
   box-shadow:
-
     inset 0 0 80px rgba(0,0,0,0.8),
     0 0 60px rgba(0,255,255,0.4),
     0 0 120px rgba(0,255,255,0.25);
 
-  overflow:hidden;
-
+  overflow: hidden;
 }
 
 /* OUTER CYAN HALO */
@@ -679,42 +673,99 @@ html, body, #root {
 }
 
 .landing-container {
-
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
-  justify-content: flex-start;
 
-  padding-top: 120px;
+  padding: 40px 20px;
 
   background-color: #0f172a;
-
   background-image:
     radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0);
-
   background-size: 28px 28px;
 
-  overflow: hidden;
-
+  overflow-x: hidden;
 }
 
 /* Graph page background (same as landing page) */
 
 .graph-page {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 
-  background-color: #0b1326;
+  display: flex;
+  flex-direction: column;
 
+  background-color: #0b1326;
   background-image:
     radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
-
   background-size: 30px 30px;
-
+  position: relative;
   overflow: hidden;
 }
+.graph-container {
+  flex: 1;
+  min-height: 0;
+}
+.graph-title {
+  position: absolute;
 
+  top: 20px;
+  left: 30px;
+
+  font-family: 'Orbitron', sans-serif;
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: 2px;
+
+  color: #e6edf3;
+  text-transform: uppercase;
+
+  text-shadow:
+    0 0 8px rgba(96,165,250,0.7),
+    0 0 18px rgba(96,165,250,0.4);
+
+  z-index: 10;
+  pointer-events: none; /* important */
+}
+
+
+@media (max-width: 600px) {
+  .landing-title {
+    font-size: 32px;
+  }
+
+  .repo-command-row {
+    gap: 10px;
+  }
+
+  .send-button {
+    width: 100%;
+  }
+}
+
+@keyframes orbPulse {
+  0% {
+    box-shadow:
+      0 0 10px rgba(59,130,246,0.5),
+      0 0 20px rgba(59,130,246,0.25),
+      inset 0 0 10px rgba(0,0,0,0.8);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(59,130,246,0.9),
+      0 0 45px rgba(59,130,246,0.5),
+      inset 0 0 12px rgba(0,0,0,0.9);
+  }
+
+  100% {
+    box-shadow:
+      0 0 10px rgba(59,130,246,0.5),
+      0 0 20px rgba(59,130,246,0.25),
+      inset 0 0 10px rgba(0,0,0,0.8);
+  }
+}
